@@ -1,53 +1,59 @@
-This is a [Kobweb](https://github.com/varabyte/kobweb) project bootstrapped with the `app/empty` template.
+# Kobweb Notes
 
-This template is useful if you already know what you're doing and just want a clean slate. By default, it
-just creates a blank home page (which prints to the console so you can confirm it's working)
+A Google Keep-style notes application built with Kobweb (Kotlin for Web).
 
-If you are still learning, consider instantiating the `app` template (or one of the examples) to see actual,
-working projects.
+## Features
+- Create and delete notes
+- Change note colors
+- Simple and responsive interface
 
-## Getting Started
+## Development
 
-First, run the development server by typing the following command in a terminal under the `site` folder:
+### Prerequisites
+- JDK 17 or newer
+- Gradle
 
-```bash
-$ cd site
-$ kobweb run
+### Running locally
+
+1. Clone this repository
+```
+git clone https://github.com/OmyDaGreat/kobweb-notes.git
+cd kobweb-notes
 ```
 
-Open [http://localhost:8080](http://localhost:8080) with your browser to see the result.
-
-You can use any editor you want for the project, but we recommend using **IntelliJ IDEA Community Edition** downloaded
-using the [Toolbox App](https://www.jetbrains.com/toolbox-app/).
-
-Press `Q` in the terminal to gracefully stop the server.
-
-### Live Reload
-
-Feel free to edit / add / delete new components, pages, and API endpoints! When you make any changes, the site will
-indicate the status of the build and automatically reload when ready.
-
-## Exporting the Project
-
-When you are ready to ship, you should shutdown the development server and then export the project using:
-
-```bash
-kobweb export
+1. Start the development server
+```
+./gradlew kobwebStart
 ```
 
-When finished, you can run a Kobweb server in production mode:
+1. Open your browser and navigate to `http://localhost:8080`
 
-```bash
-kobweb run --env prod
+### Building for production
+
+```
+./gradlew kobwebExport
 ```
 
-If you want to run this command in the Cloud provider of your choice, consider disabling interactive mode since nobody
-is sitting around watching the console in that case anyway. To do that, use:
+The production files will be generated in the `.kobweb/site` directory.
 
-```bash
-kobweb run --env prod --notty
+## Docker Support
+
+### Building and running with Docker
+
+```
+docker build -t kobweb-notes .
+docker run -p 8080:80 kobweb-notes
 ```
 
-Kobweb also supports exporting to a static layout which is compatible with static hosting providers, such as GitHub
-Pages, Netlify, Firebase, any presumably all the others. You can read more about that approach here:
-https://bitspittle.dev/blog/2022/staticdeploy
+### Running with Docker Compose
+
+```
+docker-compose up
+```
+
+Access the application at `http://localhost:8080`
+
+## Technology Stack
+- Kotlin
+- Kobweb (Kotlin Compose for Web)
+- Docker

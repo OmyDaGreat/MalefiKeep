@@ -25,6 +25,6 @@ gradle.settingsEvaluated {
     dependencyResolutionManagement.repositories { kobwebSnapshots() }
 }
 
-rootProject.name = "singlepage"
+rootProject.name = "malefikeep"
 
 include(":site")
