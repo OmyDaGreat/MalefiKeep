@@ -24,7 +24,7 @@ object DatabaseManager {
         Database.connect(dataSource)
         transaction {
             SchemaUtils.createMissingTablesAndColumns(
-                Users, Workspaces, WorkspaceMembers, Notes,
+                Users, Workspaces, WorkspaceMembers, Notes, RefreshTokens,
             )
         }
     }

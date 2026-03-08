@@ -5,15 +5,16 @@ import com.varabyte.kobweb.api.ApiContext
 import com.varabyte.kobweb.api.http.HttpMethod
 import com.varabyte.kobweb.api.http.text
 import kotlinx.serialization.encodeToString
+import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import xyz.malefic.malefikeep.api.apiJson
 import xyz.malefic.malefikeep.api.respondError
 import xyz.malefic.malefikeep.api.respondJson
 import xyz.malefic.malefikeep.auth.JwtUtils
 import xyz.malefic.malefikeep.auth.PasswordUtils
+import xyz.malefic.malefikeep.db.RefreshTokens
 import xyz.malefic.malefikeep.db.Users
 import xyz.malefic.malefikeep.models.AuthResponse
 import xyz.malefic.malefikeep.models.RegisterRequest
@@ -36,7 +37,10 @@ suspend fun register(ctx: ApiContext) {
         return
     }
 
-    val (userId, token) =
+    val now = System.currentTimeMillis()
+    val expiresAt = now + 3 * 24 * 60 * 60 * 1000L
+
+    val result =
         transaction {
             val existing = Users.selectAll().where { Users.email eq request.email }.singleOrNull()
             if (existing != null) return@transaction null
@@ -46,10 +50,22 @@ suspend fun register(ctx: ApiContext) {
                 it[username] = request.username
                 it[email] = request.email
                 it[passwordHash] = PasswordUtils.hash(request.password)
-                it[createdAt] = System.currentTimeMillis()
+                it[createdAt] = now
             }
-            id to JwtUtils.generateToken(id, request.username)
+            val token = JwtUtils.generateToken(id, request.username)
+            val refreshToken = if (request.rememberMe) {
+                val rt = JwtUtils.generateRefreshToken()
+                RefreshTokens.insert {
+                    it[RefreshTokens.id] = rt
+                    it[userId] = id
+                    it[RefreshTokens.expiresAt] = now + JwtUtils.REFRESH_TOKEN_EXPIRY_MS
+                    it[createdAt] = now
+                }
+                rt
+            } else null
+            Triple(id, token, refreshToken)
         } ?: run { ctx.respondError(409, "Email already registered"); return }
 
-    ctx.respondJson(201, apiJson.encodeToString(AuthResponse(token, userId, request.username)))
+    val (userId, token, refreshToken) = result
+    ctx.respondJson(201, apiJson.encodeToString(AuthResponse(token, userId, request.username, refreshToken, expiresAt)))
 }

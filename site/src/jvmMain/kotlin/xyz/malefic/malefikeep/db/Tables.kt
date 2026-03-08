@@ -36,3 +36,11 @@ object Notes : Table("notes") {
     val updatedAt = long("updated_at")
     override val primaryKey = PrimaryKey(id)
 }
+
+object RefreshTokens : Table("refresh_tokens") {
+    val id = varchar("id", 128)
+    val userId = varchar("user_id", 36).references(Users.id)
+    val expiresAt = long("expires_at")
+    val createdAt = long("created_at")
+    override val primaryKey = PrimaryKey(id)
+}

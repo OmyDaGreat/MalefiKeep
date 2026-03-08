@@ -25,6 +25,7 @@ import com.varabyte.kobweb.compose.ui.toAttrs
 import com.varabyte.kobweb.core.Page
 import com.varabyte.kobweb.core.rememberPageContext
 import com.varabyte.kobweb.silk.components.forms.Button
+import kotlinx.browser.localStorage
 import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import org.jetbrains.compose.web.css.Color
@@ -33,9 +34,12 @@ import org.jetbrains.compose.web.css.rgba
 import org.jetbrains.compose.web.dom.H1
 import org.jetbrains.compose.web.dom.P
 import org.jetbrains.compose.web.dom.Text
+import org.w3c.dom.set
 import xyz.malefic.malefikeep.api.apiPost
 import xyz.malefic.malefikeep.api.clientJson
+import xyz.malefic.malefikeep.api.decodeOrNull
 import xyz.malefic.malefikeep.components.FormInput
+import xyz.malefic.malefikeep.models.AuthResponse
 import xyz.malefic.malefikeep.models.RegisterRequest
 
 @Page
@@ -47,6 +51,7 @@ fun RegisterPage() {
     var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var rememberMe by remember { mutableStateOf(true) }
     var errorMsg by remember { mutableStateOf("") }
     var loading by remember { mutableStateOf(false) }
 
@@ -71,6 +76,24 @@ fun RegisterPage() {
                 marginTop = 16,
             ) { password = it }
 
+            Row(
+                Modifier.fillMaxWidth().margin(top = 16.px),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                org.jetbrains.compose.web.dom.Input(
+                    type = org.jetbrains.compose.web.attributes.InputType.Checkbox,
+                    attrs = {
+                        checked(rememberMe)
+                        onInput { rememberMe = it.value }
+                        style { property("margin-right", "8px") }
+                    },
+                )
+                org.jetbrains.compose.web.dom.Label(attrs = {
+                    style { property("cursor", "pointer") }
+                    onClick { rememberMe = !rememberMe }
+                }) { Text("Stay logged in on this device") }
+            }
+
             if (errorMsg.isNotEmpty()) {
                 P(attrs = Modifier.color(Color("#d32f2f")).margin(top = 8.px, bottom = 0.px).toAttrs()) {
                     Text(errorMsg)
@@ -84,10 +107,20 @@ fun RegisterPage() {
                         errorMsg = ""
                         val result = apiPost(
                             "/api/auth/register",
-                            clientJson.encodeToString(RegisterRequest(username, email, password)),
+                            clientJson.encodeToString(RegisterRequest(username, email, password, rememberMe)),
                         )
                         if (result.isSuccess) {
-                            ctx.router.navigateTo("/login")
+                            val auth = result.decodeOrNull<AuthResponse>()
+                            if (auth != null) {
+                                localStorage["auth-token"] = auth.token
+                                localStorage["auth-user-id"] = auth.userId
+                                localStorage["auth-username"] = auth.username
+                                if (auth.refreshToken != null) localStorage["auth-refresh-token"] = auth.refreshToken
+                                if (auth.accessTokenExpiresAt != null) localStorage["auth-token-expires"] = auth.accessTokenExpiresAt.toString()
+                                ctx.router.navigateTo("/")
+                            } else {
+                                ctx.router.navigateTo("/login")
+                            }
                         } else {
                             errorMsg = result.exceptionOrNull()?.message?.substringAfter(": ") ?: "Registration failed."
                         }

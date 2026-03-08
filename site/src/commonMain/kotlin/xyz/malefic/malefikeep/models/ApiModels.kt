@@ -7,12 +7,14 @@ data class RegisterRequest(
     val username: String,
     val email: String,
     val password: String,
+    val rememberMe: Boolean = true,
 )
 
 @Serializable
 data class LoginRequest(
     val email: String,
     val password: String,
+    val rememberMe: Boolean = true,
 )
 
 @Serializable
@@ -20,7 +22,15 @@ data class AuthResponse(
     val token: String,
     val userId: String,
     val username: String,
+    val refreshToken: String? = null,
+    val accessTokenExpiresAt: Long? = null,
 )
+
+@Serializable
+data class RefreshRequest(val refreshToken: String)
+
+@Serializable
+data class LogoutRequest(val refreshToken: String)
 
 @Serializable
 data class CreateWorkspaceRequest(

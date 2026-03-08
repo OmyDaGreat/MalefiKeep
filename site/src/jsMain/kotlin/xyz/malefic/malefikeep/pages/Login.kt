@@ -53,6 +53,7 @@ fun LoginPage() {
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var rememberMe by remember { mutableStateOf(true) }
     var errorMsg by remember { mutableStateOf("") }
     var loading by remember { mutableStateOf(false) }
 
@@ -76,6 +77,24 @@ fun LoginPage() {
                 marginTop = 16,
             ) { password = it }
 
+            Row(
+                Modifier.fillMaxWidth().margin(top = 16.px),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                org.jetbrains.compose.web.dom.Input(
+                    type = org.jetbrains.compose.web.attributes.InputType.Checkbox,
+                    attrs = {
+                        checked(rememberMe)
+                        onInput { rememberMe = it.value }
+                        style { property("margin-right", "8px") }
+                    },
+                )
+                org.jetbrains.compose.web.dom.Label(attrs = {
+                    style { property("cursor", "pointer") }
+                    onClick { rememberMe = !rememberMe }
+                }) { Text("Stay logged in on this device") }
+            }
+
             if (errorMsg.isNotEmpty()) {
                 P(attrs = Modifier.color(Color("#d32f2f")).margin(top = 8.px, bottom = 0.px).toAttrs()) {
                     Text(errorMsg)
@@ -89,13 +108,15 @@ fun LoginPage() {
                         errorMsg = ""
                         val result = apiPost(
                             "/api/auth/login",
-                            clientJson.encodeToString(LoginRequest(email, password)),
+                            clientJson.encodeToString(LoginRequest(email, password, rememberMe)),
                         )
                         val auth = result.decodeOrNull<AuthResponse>()
                         if (auth != null) {
                             localStorage["auth-token"] = auth.token
                             localStorage["auth-user-id"] = auth.userId
                             localStorage["auth-username"] = auth.username
+                            if (auth.refreshToken != null) localStorage["auth-refresh-token"] = auth.refreshToken
+                            if (auth.accessTokenExpiresAt != null) localStorage["auth-token-expires"] = auth.accessTokenExpiresAt.toString()
                             ctx.router.navigateTo("/")
                         } else {
                             errorMsg = "Invalid email or password."
