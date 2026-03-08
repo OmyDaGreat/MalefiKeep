@@ -183,4 +183,3 @@ fun CreateNote(onNoteCreated: (title: String, content: String, color: String) ->
         }
     }
 }
-

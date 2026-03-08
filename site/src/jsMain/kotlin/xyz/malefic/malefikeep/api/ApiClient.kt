@@ -5,9 +5,9 @@ import kotlinx.browser.window
 import kotlinx.coroutines.await
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import org.w3c.fetch.RequestInit
 import org.w3c.dom.get
 import org.w3c.dom.set
+import org.w3c.fetch.RequestInit
 import xyz.malefic.malefikeep.models.AuthResponse
 import xyz.malefic.malefikeep.models.RefreshRequest
 
@@ -21,7 +21,10 @@ private fun authHeaders(includeBody: Boolean = false): dynamic {
     return headers
 }
 
-private fun buildInit(method: String, body: String? = null): RequestInit {
+private fun buildInit(
+    method: String,
+    body: String? = null,
+): RequestInit {
     val init: dynamic = js("{}")
     init.method = method
     init.headers = authHeaders(includeBody = body != null)
@@ -56,7 +59,11 @@ fun clearAuth() {
     localStorage.removeItem("auth-token-expires")
 }
 
-private suspend fun fetchWithRefresh(path: String, method: String, body: String? = null): Result<String> =
+private suspend fun fetchWithRefresh(
+    path: String,
+    method: String,
+    body: String? = null,
+): Result<String> =
     runCatching {
         val response = window.fetch(path, buildInit(method, body)).await()
         if (response.status.toInt() == 401 && tryRefresh()) {
@@ -77,11 +84,20 @@ private suspend fun fetchWithRefresh(path: String, method: String, body: String?
 
 suspend fun apiGet(path: String): Result<String> = fetchWithRefresh(path, "GET")
 
-suspend fun apiPost(path: String, body: String): Result<String> = fetchWithRefresh(path, "POST", body)
+suspend fun apiPost(
+    path: String,
+    body: String,
+): Result<String> = fetchWithRefresh(path, "POST", body)
 
-suspend fun apiPut(path: String, body: String): Result<String> = fetchWithRefresh(path, "PUT", body)
+suspend fun apiPut(
+    path: String,
+    body: String,
+): Result<String> = fetchWithRefresh(path, "PUT", body)
 
-suspend fun apiDelete(path: String, body: String? = null): Result<String> = fetchWithRefresh(path, "DELETE", body)
+suspend fun apiDelete(
+    path: String,
+    body: String? = null,
+): Result<String> = fetchWithRefresh(path, "DELETE", body)
 
 inline fun <reified T> Result<String>.decodeOrNull(): T? =
     getOrNull()?.let { runCatching { clientJson.decodeFromString<T>(it) }.getOrNull() }

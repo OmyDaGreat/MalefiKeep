@@ -63,7 +63,14 @@ fun WorkspaceItem(
             FaFolder(Modifier.color(Color("#fbbc04")).fontSize(20.px).margin(right = 12.px))
             Column(Modifier.weight(1f)) {
                 Span(attrs = Modifier.fontSize(16.px).toAttrs()) { Text(workspace.name) }
-                P(attrs = Modifier.fontSize(12.px).color(Color.darkgray).margin(top = 2.px, bottom = 0.px).toAttrs()) {
+                P(
+                    attrs =
+                        Modifier
+                            .fontSize(12.px)
+                            .color(Color.darkgray)
+                            .margin(top = 2.px, bottom = 0.px)
+                            .toAttrs(),
+                ) {
                     Text("Owner: ${workspace.ownerUsername}")
                 }
             }

@@ -13,7 +13,10 @@ object JwtUtils {
     private const val ACCESS_TOKEN_EXPIRY_MS = 3 * 24 * 60 * 60 * 1000L // 3 days
     val REFRESH_TOKEN_EXPIRY_MS = 30 * 24 * 60 * 60 * 1000L // 30 days
 
-    fun generateToken(userId: String, username: String): String =
+    fun generateToken(
+        userId: String,
+        username: String,
+    ): String =
         JWT
             .create()
             .withIssuer(ISSUER)
@@ -30,7 +33,11 @@ object JwtUtils {
 
     fun verifyToken(token: String): DecodedJWT? =
         runCatching {
-            JWT.require(algorithm).withIssuer(ISSUER).build().verify(token)
+            JWT
+                .require(algorithm)
+                .withIssuer(ISSUER)
+                .build()
+                .verify(token)
         }.getOrNull()
 
     fun extractUserId(token: String): String? = verifyToken(token)?.subject

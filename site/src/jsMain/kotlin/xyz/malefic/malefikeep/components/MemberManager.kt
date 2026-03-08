@@ -83,7 +83,14 @@ fun MemberManager(
                     Button(
                         onClick = {
                             scope.launch {
-                                val newRole = if (member.role == WorkspaceRole.READ_ONLY) WorkspaceRole.READ_WRITE else WorkspaceRole.READ_ONLY
+                                val newRole =
+                                    if (member.role ==
+                                        WorkspaceRole.READ_ONLY
+                                    ) {
+                                        WorkspaceRole.READ_WRITE
+                                    } else {
+                                        WorkspaceRole.READ_ONLY
+                                    }
                                 apiPut(
                                     "/api/workspaces/members/update",
                                     clientJson.encodeToString(UpdateMemberRoleRequest(workspaceId, member.userId, newRole)),
@@ -102,7 +109,12 @@ fun MemberManager(
                                 members = members.filter { it.userId != member.userId }
                             }
                         },
-                        modifier = Modifier.padding(4.px, 8.px).fontSize(12.px).color(Color("#d32f2f")).backgroundColor(Color("#fff0f0")),
+                        modifier =
+                            Modifier
+                                .padding(4.px, 8.px)
+                                .fontSize(12.px)
+                                .color(Color("#d32f2f"))
+                                .backgroundColor(Color("#fff0f0")),
                     ) {
                         Text("Remove")
                     }
@@ -126,10 +138,11 @@ fun MemberManager(
                     onClick = {
                         if (addUsername.isBlank()) return@Button
                         scope.launch {
-                            val result = apiPost(
-                                "/api/workspaces/members/add",
-                                clientJson.encodeToString(AddMemberRequest(workspaceId, addUsername, addRole)),
-                            )
+                            val result =
+                                apiPost(
+                                    "/api/workspaces/members/add",
+                                    clientJson.encodeToString(AddMemberRequest(workspaceId, addUsername, addRole)),
+                                )
                             val newMember = result.decodeOrNull<WorkspaceMember>()
                             if (newMember != null) {
                                 members = members + newMember
@@ -140,7 +153,12 @@ fun MemberManager(
                             }
                         }
                     },
-                    modifier = Modifier.padding(10.px, 16.px).backgroundColor(Color("#4285f4")).color(Color.white).borderRadius(4.px),
+                    modifier =
+                        Modifier
+                            .padding(10.px, 16.px)
+                            .backgroundColor(Color("#4285f4"))
+                            .color(Color.white)
+                            .borderRadius(4.px),
                 ) {
                     Text("Invite")
                 }

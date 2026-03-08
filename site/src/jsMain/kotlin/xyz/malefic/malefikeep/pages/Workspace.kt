@@ -57,13 +57,19 @@ fun WorkspacePage() {
     var canWrite by remember { mutableStateOf(false) }
 
     LaunchedEffect(workspaceId) {
-        if (workspaceId.isEmpty()) { ctx.router.navigateTo("/"); return@LaunchedEffect }
+        if (workspaceId.isEmpty()) {
+            ctx.router.navigateTo("/")
+            return@LaunchedEffect
+        }
 
         // Load workspace info from the list endpoint
         val wsResult = apiGet("/api/workspaces/list")
         val workspaces = wsResult.decodeOrNull<List<xyz.malefic.malefikeep.models.Workspace>>() ?: emptyList()
         val workspace = workspaces.find { it.id == workspaceId }
-        if (workspace == null) { ctx.router.navigateTo("/"); return@LaunchedEffect }
+        if (workspace == null) {
+            ctx.router.navigateTo("/")
+            return@LaunchedEffect
+        }
 
         workspaceName = workspace.name
         isOwner = workspace.ownerId == userId
@@ -92,17 +98,18 @@ fun WorkspacePage() {
                 if (canWrite) {
                     CreateNote { title, content, color ->
                         scope.launch {
-                            val result = apiPost(
-                                "/api/workspaces/notes/create",
-                                clientJson.encodeToString(
-                                    CreateNoteRequest(
-                                        workspaceId = workspaceId,
-                                        title = title,
-                                        content = content,
-                                        color = color,
+                            val result =
+                                apiPost(
+                                    "/api/workspaces/notes/create",
+                                    clientJson.encodeToString(
+                                        CreateNoteRequest(
+                                            workspaceId = workspaceId,
+                                            title = title,
+                                            content = content,
+                                            color = color,
+                                        ),
                                     ),
-                                ),
-                            )
+                                )
                             val newNote = result.decodeOrNull<Note>()
                             if (newNote != null) notes = listOf(newNote) + notes
                         }

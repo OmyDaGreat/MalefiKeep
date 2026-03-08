@@ -27,10 +27,14 @@ data class AuthResponse(
 )
 
 @Serializable
-data class RefreshRequest(val refreshToken: String)
+data class RefreshRequest(
+    val refreshToken: String,
+)
 
 @Serializable
-data class LogoutRequest(val refreshToken: String)
+data class LogoutRequest(
+    val refreshToken: String,
+)
 
 @Serializable
 data class CreateWorkspaceRequest(
@@ -69,7 +73,11 @@ data class UpdateNoteRequest(
 )
 
 @Serializable
-data class ErrorResponse(val message: String)
+data class ErrorResponse(
+    val message: String,
+)
 
 @Serializable
-data class SuccessResponse(val message: String)
+data class SuccessResponse(
+    val message: String,
+)

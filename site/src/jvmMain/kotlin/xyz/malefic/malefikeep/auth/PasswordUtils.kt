@@ -7,5 +7,8 @@ object PasswordUtils {
 
     fun hash(password: String): String = BCrypt.hashpw(password, BCrypt.gensalt(ROUNDS))
 
-    fun verify(password: String, hash: String): Boolean = BCrypt.checkpw(password, hash)
+    fun verify(
+        password: String,
+        hash: String,
+    ): Boolean = BCrypt.checkpw(password, hash)
 }

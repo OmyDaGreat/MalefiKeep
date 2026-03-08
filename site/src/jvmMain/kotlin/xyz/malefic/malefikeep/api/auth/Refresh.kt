@@ -24,26 +24,40 @@ suspend fun refresh(ctx: ApiContext) {
         return
     }
 
-    val bodyText = ctx.req.body?.text() ?: run { ctx.respondError(400, "Missing request body"); return }
+    val bodyText =
+        ctx.req.body?.text() ?: run {
+            ctx.respondError(400, "Missing request body")
+            return
+        }
     val request =
         runCatching { apiJson.decodeFromString<RefreshRequest>(bodyText) }
-            .getOrElse { ctx.respondError(400, "Invalid request body"); return }
+            .getOrElse {
+                ctx.respondError(400, "Invalid request body")
+                return
+            }
 
     val now = System.currentTimeMillis()
 
-    val (userId, username) = transaction {
-        val row = RefreshTokens.selectAll()
-            .where { RefreshTokens.id eq request.refreshToken }
-            .singleOrNull()
-            ?: return@transaction null
+    val (userId, username) =
+        transaction {
+            val row =
+                RefreshTokens
+                    .selectAll()
+                    .where { RefreshTokens.id eq request.refreshToken }
+                    .singleOrNull()
+                    ?: return@transaction null
 
-        if (row[RefreshTokens.expiresAt] < now) return@transaction null
+            if (row[RefreshTokens.expiresAt] < now) return@transaction null
 
-        val user = Users.selectAll().where { Users.id eq row[RefreshTokens.userId] }.singleOrNull()
-            ?: return@transaction null
+            val user =
+                Users.selectAll().where { Users.id eq row[RefreshTokens.userId] }.singleOrNull()
+                    ?: return@transaction null
 
-        user[Users.id] to user[Users.username]
-    } ?: run { ctx.respondError(401, "Invalid or expired refresh token"); return }
+            user[Users.id] to user[Users.username]
+        } ?: run {
+            ctx.respondError(401, "Invalid or expired refresh token")
+            return
+        }
 
     val newToken = JwtUtils.generateToken(userId, username)
     val expiresAt = now + 3 * 24 * 60 * 60 * 1000L

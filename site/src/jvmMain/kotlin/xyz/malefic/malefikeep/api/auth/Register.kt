@@ -27,10 +27,17 @@ suspend fun register(ctx: ApiContext) {
         return
     }
 
-    val bodyText = ctx.req.body?.text() ?: run { ctx.respondError(400, "Missing request body"); return }
+    val bodyText =
+        ctx.req.body?.text() ?: run {
+            ctx.respondError(400, "Missing request body")
+            return
+        }
     val request =
         runCatching { apiJson.decodeFromString<RegisterRequest>(bodyText) }
-            .getOrElse { ctx.respondError(400, "Invalid request body"); return }
+            .getOrElse {
+                ctx.respondError(400, "Invalid request body")
+                return
+            }
 
     if (request.username.isBlank() || request.email.isBlank() || request.password.length < 8) {
         ctx.respondError(400, "Username and email are required; password must be at least 8 characters")
@@ -53,18 +60,24 @@ suspend fun register(ctx: ApiContext) {
                 it[createdAt] = now
             }
             val token = JwtUtils.generateToken(id, request.username)
-            val refreshToken = if (request.rememberMe) {
-                val rt = JwtUtils.generateRefreshToken()
-                RefreshTokens.insert {
-                    it[RefreshTokens.id] = rt
-                    it[userId] = id
-                    it[RefreshTokens.expiresAt] = now + JwtUtils.REFRESH_TOKEN_EXPIRY_MS
-                    it[createdAt] = now
+            val refreshToken =
+                if (request.rememberMe) {
+                    val rt = JwtUtils.generateRefreshToken()
+                    RefreshTokens.insert {
+                        it[RefreshTokens.id] = rt
+                        it[userId] = id
+                        it[RefreshTokens.expiresAt] = now + JwtUtils.REFRESH_TOKEN_EXPIRY_MS
+                        it[createdAt] = now
+                    }
+                    rt
+                } else {
+                    null
                 }
-                rt
-            } else null
             Triple(id, token, refreshToken)
-        } ?: run { ctx.respondError(409, "Email already registered"); return }
+        } ?: run {
+            ctx.respondError(409, "Email already registered")
+            return
+        }
 
     val (userId, token, refreshToken) = result
     ctx.respondJson(201, apiJson.encodeToString(AuthResponse(token, userId, request.username, refreshToken, expiresAt)))

@@ -23,8 +23,16 @@ suspend fun deleteWorkspace(ctx: ApiContext) {
         ctx.res.status = 405
         return
     }
-    val userId = ctx.requireAuth() ?: run { ctx.respondError(401, "Unauthorized"); return }
-    val workspaceId = ctx.req.params["id"] ?: run { ctx.respondError(400, "Missing id parameter"); return }
+    val userId =
+        ctx.requireAuth() ?: run {
+            ctx.respondError(401, "Unauthorized")
+            return
+        }
+    val workspaceId =
+        ctx.req.params["id"] ?: run {
+            ctx.respondError(400, "Missing id parameter")
+            return
+        }
 
     transaction {
         val workspace =

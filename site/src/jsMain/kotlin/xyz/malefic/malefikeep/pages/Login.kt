@@ -106,10 +106,11 @@ fun LoginPage() {
                     scope.launch {
                         loading = true
                         errorMsg = ""
-                        val result = apiPost(
-                            "/api/auth/login",
-                            clientJson.encodeToString(LoginRequest(email, password, rememberMe)),
-                        )
+                        val result =
+                            apiPost(
+                                "/api/auth/login",
+                                clientJson.encodeToString(LoginRequest(email, password, rememberMe)),
+                            )
                         val auth = result.decodeOrNull<AuthResponse>()
                         if (auth != null) {
                             localStorage["auth-token"] = auth.token
@@ -124,13 +125,14 @@ fun LoginPage() {
                         loading = false
                     }
                 },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .margin(top = 24.px)
-                    .padding(12.px)
-                    .backgroundColor(Color("#4285f4"))
-                    .color(Color.white)
-                    .borderRadius(4.px),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .margin(top = 24.px)
+                        .padding(12.px)
+                        .backgroundColor(Color("#4285f4"))
+                        .color(Color.white)
+                        .borderRadius(4.px),
             ) {
                 Text(if (loading) "Signing in…" else "Sign in")
             }
@@ -141,7 +143,12 @@ fun LoginPage() {
                 }
                 Button(
                     onClick = { ctx.router.navigateTo("/register") },
-                    modifier = Modifier.backgroundColor(Color.transparent).color(Color("#4285f4")).padding(0.px).margin(left = 4.px),
+                    modifier =
+                        Modifier
+                            .backgroundColor(Color.transparent)
+                            .color(Color("#4285f4"))
+                            .padding(0.px)
+                            .margin(left = 4.px),
                 ) {
                     Text("Register")
                 }

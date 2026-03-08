@@ -26,15 +26,25 @@ suspend fun login(ctx: ApiContext) {
         return
     }
 
-    val bodyText = ctx.req.body?.text() ?: run { ctx.respondError(400, "Missing request body"); return }
+    val bodyText =
+        ctx.req.body?.text() ?: run {
+            ctx.respondError(400, "Missing request body")
+            return
+        }
     val request =
         runCatching { apiJson.decodeFromString<LoginRequest>(bodyText) }
-            .getOrElse { ctx.respondError(400, "Invalid request body"); return }
+            .getOrElse {
+                ctx.respondError(400, "Invalid request body")
+                return
+            }
 
     val user =
         transaction {
             Users.selectAll().where { Users.email eq request.email }.singleOrNull()
-        } ?: run { ctx.respondError(401, "Invalid credentials"); return }
+        } ?: run {
+            ctx.respondError(401, "Invalid credentials")
+            return
+        }
 
     if (!PasswordUtils.verify(request.password, user[Users.passwordHash])) {
         ctx.respondError(401, "Invalid credentials")
@@ -47,18 +57,21 @@ suspend fun login(ctx: ApiContext) {
     val token = JwtUtils.generateToken(userId, username)
     val expiresAt = now + 3 * 24 * 60 * 60 * 1000L
 
-    val refreshToken = if (request.rememberMe) {
-        val rt = JwtUtils.generateRefreshToken()
-        transaction {
-            RefreshTokens.insert {
-                it[id] = rt
-                it[RefreshTokens.userId] = userId
-                it[RefreshTokens.expiresAt] = now + JwtUtils.REFRESH_TOKEN_EXPIRY_MS
-                it[createdAt] = now
+    val refreshToken =
+        if (request.rememberMe) {
+            val rt = JwtUtils.generateRefreshToken()
+            transaction {
+                RefreshTokens.insert {
+                    it[id] = rt
+                    it[RefreshTokens.userId] = userId
+                    it[RefreshTokens.expiresAt] = now + JwtUtils.REFRESH_TOKEN_EXPIRY_MS
+                    it[createdAt] = now
+                }
             }
+            rt
+        } else {
+            null
         }
-        rt
-    } else null
 
     ctx.respondJson(200, apiJson.encodeToString(AuthResponse(token, userId, username, refreshToken, expiresAt)))
 }

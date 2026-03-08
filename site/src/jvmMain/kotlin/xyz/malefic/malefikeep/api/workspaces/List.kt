@@ -23,7 +23,11 @@ suspend fun listWorkspaces(ctx: ApiContext) {
         ctx.res.status = 405
         return
     }
-    val userId = ctx.requireAuth() ?: run { ctx.respondError(401, "Unauthorized"); return }
+    val userId =
+        ctx.requireAuth() ?: run {
+            ctx.respondError(401, "Unauthorized")
+            return
+        }
 
     val workspaces =
         transaction {

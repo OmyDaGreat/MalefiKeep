@@ -22,10 +22,17 @@ suspend fun logout(ctx: ApiContext) {
         return
     }
 
-    val bodyText = ctx.req.body?.text() ?: run { ctx.respondError(400, "Missing request body"); return }
+    val bodyText =
+        ctx.req.body?.text() ?: run {
+            ctx.respondError(400, "Missing request body")
+            return
+        }
     val request =
         runCatching { apiJson.decodeFromString<LogoutRequest>(bodyText) }
-            .getOrElse { ctx.respondError(400, "Invalid request body"); return }
+            .getOrElse {
+                ctx.respondError(400, "Invalid request body")
+                return
+            }
 
     transaction {
         RefreshTokens.deleteWhere { RefreshTokens.id eq request.refreshToken }

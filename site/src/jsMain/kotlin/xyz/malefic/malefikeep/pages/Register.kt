@@ -105,10 +105,11 @@ fun RegisterPage() {
                     scope.launch {
                         loading = true
                         errorMsg = ""
-                        val result = apiPost(
-                            "/api/auth/register",
-                            clientJson.encodeToString(RegisterRequest(username, email, password, rememberMe)),
-                        )
+                        val result =
+                            apiPost(
+                                "/api/auth/register",
+                                clientJson.encodeToString(RegisterRequest(username, email, password, rememberMe)),
+                            )
                         if (result.isSuccess) {
                             val auth = result.decodeOrNull<AuthResponse>()
                             if (auth != null) {
@@ -116,7 +117,11 @@ fun RegisterPage() {
                                 localStorage["auth-user-id"] = auth.userId
                                 localStorage["auth-username"] = auth.username
                                 if (auth.refreshToken != null) localStorage["auth-refresh-token"] = auth.refreshToken
-                                if (auth.accessTokenExpiresAt != null) localStorage["auth-token-expires"] = auth.accessTokenExpiresAt.toString()
+                                if (auth.accessTokenExpiresAt !=
+                                    null
+                                ) {
+                                    localStorage["auth-token-expires"] = auth.accessTokenExpiresAt.toString()
+                                }
                                 ctx.router.navigateTo("/")
                             } else {
                                 ctx.router.navigateTo("/login")
@@ -127,13 +132,14 @@ fun RegisterPage() {
                         loading = false
                     }
                 },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .margin(top = 24.px)
-                    .padding(12.px)
-                    .backgroundColor(Color("#4285f4"))
-                    .color(Color.white)
-                    .borderRadius(4.px),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .margin(top = 24.px)
+                        .padding(12.px)
+                        .backgroundColor(Color("#4285f4"))
+                        .color(Color.white)
+                        .borderRadius(4.px),
             ) {
                 Text(if (loading) "Creating account…" else "Create account")
             }
@@ -142,7 +148,12 @@ fun RegisterPage() {
                 P(attrs = Modifier.margin(0.px).toAttrs()) { Text("Already have an account? ") }
                 Button(
                     onClick = { ctx.router.navigateTo("/login") },
-                    modifier = Modifier.backgroundColor(Color.transparent).color(Color("#4285f4")).padding(0.px).margin(left = 4.px),
+                    modifier =
+                        Modifier
+                            .backgroundColor(Color.transparent)
+                            .color(Color("#4285f4"))
+                            .padding(0.px)
+                            .margin(left = 4.px),
                 ) {
                     Text("Sign in")
                 }

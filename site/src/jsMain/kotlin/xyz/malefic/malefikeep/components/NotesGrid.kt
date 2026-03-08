@@ -59,12 +59,19 @@ fun NotesGrid(
                     .display(DisplayStyle.Grid)
                     .gridTemplateColumns {
                         when (breakpoint) {
-                            Breakpoint.SM -> size(1.fr)
-                            Breakpoint.MD -> size(1.fr)
-                            else ->
+                            Breakpoint.SM -> {
+                                size(1.fr)
+                            }
+
+                            Breakpoint.MD -> {
+                                size(1.fr)
+                            }
+
+                            else -> {
                                 repeat(GridEntry.Repeat.Auto.Type.AutoFill) {
                                     minmax(300.px, 1.fr)
                                 }
+                            }
                         }
                     }.gap(16.px),
             ) {
