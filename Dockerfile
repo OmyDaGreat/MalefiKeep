@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # ── Stage 1: Build ────────────────────────────────────────────────────────────
-FROM eclipse-temurin:21-jdk AS builder
+FROM eclipse-temurin:25-jdk AS builder
 WORKDIR /app
 
 ARG KOBWEB_CLI_VERSION=0.9.21
@@ -26,7 +26,7 @@ COPY site/ site/
 RUN cd site && ../kobweb-${KOBWEB_CLI_VERSION}/bin/kobweb export --notty
 
 # ── Stage 2: Runtime ──────────────────────────────────────────────────────────
-FROM eclipse-temurin:21-jre AS runtime
+FROM eclipse-temurin:25-jre AS runtime
 WORKDIR /app
 
 ARG KOBWEB_CLI_VERSION=0.9.21
