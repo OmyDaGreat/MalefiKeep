@@ -19,16 +19,29 @@ kobweb {
 }
 
 kotlin {
-    configAsKobwebApplication("malefikeep")
+    configAsKobwebApplication("malefikeep", true)
 
     sourceSets {
-        jsMain.dependencies {
+        commonMain.dependencies {
             implementation(libs.kotlinx.serialization)
+        }
+
+        jsMain.dependencies {
             implementation(libs.compose.runtime)
             implementation(libs.compose.html.core)
             implementation(libs.kobweb.core)
             implementation(libs.kobweb.silk)
             implementation(libs.silk.icons.fa)
+        }
+
+        jvmMain.dependencies {
+            implementation(libs.kobweb.api)
+            implementation(libs.exposed.core)
+            implementation(libs.exposed.jdbc)
+            implementation(libs.hikari)
+            implementation(libs.postgresql)
+            implementation(libs.jwt)
+            implementation(libs.jbcrypt)
         }
     }
 }

@@ -14,68 +14,55 @@ import com.varabyte.kobweb.compose.ui.modifiers.fillMaxSize
 import com.varabyte.kobweb.compose.ui.modifiers.fillMaxWidth
 import com.varabyte.kobweb.compose.ui.modifiers.maxWidth
 import com.varabyte.kobweb.core.Page
+import com.varabyte.kobweb.core.rememberPageContext
 import kotlinx.browser.localStorage
-import kotlinx.serialization.json.Json
 import org.jetbrains.compose.web.css.px
 import org.w3c.dom.get
-import org.w3c.dom.set
-import xyz.malefic.malefikeep.components.CreateNote
+import xyz.malefic.malefikeep.api.apiGet
+import xyz.malefic.malefikeep.api.decodeOrNull
 import xyz.malefic.malefikeep.components.Header
-import xyz.malefic.malefikeep.components.NotesGrid
-import xyz.malefic.malefikeep.models.Note
+import xyz.malefic.malefikeep.components.WorkspaceList
+import xyz.malefic.malefikeep.models.Workspace
 
 @Page
 @Composable
 fun HomePage() {
-    // Load notes from localStorage if available
-    val notesKey = "kobweb-notes"
-    val storedNotes =
-        remember {
-            try {
-                val notesJson = localStorage[notesKey]
-                if (notesJson != null) {
-                    Json.decodeFromString<List<Note>>(notesJson)
-                } else {
-                    listOf()
-                }
-            } catch (e: Exception) {
-                console.error("Failed to load notes:", e)
-                listOf()
-            }
-        }
+    val ctx = rememberPageContext()
+    val token = localStorage["auth-token"]
+    val userId = localStorage["auth-user-id"] ?: ""
 
-    var notes by remember { mutableStateOf(storedNotes) }
+    // Redirect to login if not authenticated
+    if (token == null) {
+        LaunchedEffect(Unit) { ctx.router.navigateTo("/login") }
+        return
+    }
 
-    // Update localStorage when notes change
-    LaunchedEffect(notes) {
-        try {
-            localStorage[notesKey] = Json.encodeToString(notes)
-        } catch (e: Exception) {
-            console.error("Failed to save notes:", e)
-        }
+    var workspaces by remember { mutableStateOf(listOf<Workspace>()) }
+
+    LaunchedEffect(Unit) {
+        val result = apiGet("/api/workspaces/list")
+        workspaces = result.decodeOrNull<List<Workspace>>() ?: emptyList()
     }
 
     Column(Modifier.fillMaxSize()) {
-        // Header
-        Header()
+        Header(onLogout = {
+            localStorage.removeItem("auth-token")
+            localStorage.removeItem("auth-user-id")
+            localStorage.removeItem("auth-username")
+            ctx.router.navigateTo("/login")
+        })
 
-        // Main Content
         Box(
             Modifier.fillMaxWidth().fillMaxSize(),
             contentAlignment = Alignment.TopCenter,
         ) {
-            Column(Modifier.fillMaxWidth().maxWidth(1200.px)) {
-                // Create Note Component
-                CreateNote { newNote ->
-                    notes = listOf(newNote) + notes
-                }
-
-                // Notes Grid
-                NotesGrid(
-                    notes = notes,
-                    onDeleteNote = { noteToDelete ->
-                        notes = notes.filter { it.id != noteToDelete.id }
-                    },
+            Column(Modifier.fillMaxWidth().maxWidth(900.px)) {
+                WorkspaceList(
+                    workspaces = workspaces,
+                    currentUserId = userId,
+                    onWorkspaceClick = { ctx.router.navigateTo("/workspace?id=${it.id}") },
+                    onWorkspaceCreated = { workspaces = workspaces + it },
+                    onWorkspaceDeleted = { id -> workspaces = workspaces.filter { it.id != id } },
                 )
             }
         }

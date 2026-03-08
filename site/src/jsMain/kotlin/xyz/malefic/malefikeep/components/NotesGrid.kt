@@ -27,6 +27,7 @@ import xyz.malefic.malefikeep.models.Note
 @Composable
 fun NotesGrid(
     notes: List<Note>,
+    canDelete: Boolean = true,
     onDeleteNote: (Note) -> Unit,
 ) {
     val breakpoint = rememberBreakpoint()
@@ -68,7 +69,7 @@ fun NotesGrid(
                     }.gap(16.px),
             ) {
                 notes.forEach { note ->
-                    NoteItem(note = note, onDelete = onDeleteNote)
+                    NoteItem(note = note, canDelete = canDelete, onDelete = onDeleteNote)
                 }
             }
         }

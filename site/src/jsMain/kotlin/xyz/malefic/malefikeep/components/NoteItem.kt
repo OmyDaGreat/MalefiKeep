@@ -41,6 +41,7 @@ import xyz.malefic.malefikeep.models.Note
 @Composable
 fun NoteItem(
     note: Note,
+    canDelete: Boolean = true,
     onDelete: (Note) -> Unit,
 ) {
     var isHovered by remember { mutableStateOf(false) }
@@ -80,7 +81,7 @@ fun NoteItem(
             }
         }
 
-        if (isHovered) {
+        if (isHovered && canDelete) {
             Box(
                 Modifier
                     .position(Position.Absolute)

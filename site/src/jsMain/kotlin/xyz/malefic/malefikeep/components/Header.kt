@@ -18,17 +18,23 @@ import com.varabyte.kobweb.compose.ui.modifiers.fontWeight
 import com.varabyte.kobweb.compose.ui.modifiers.margin
 import com.varabyte.kobweb.compose.ui.modifiers.padding
 import com.varabyte.kobweb.compose.ui.toAttrs
+import com.varabyte.kobweb.silk.components.forms.Button
 import com.varabyte.kobweb.silk.components.icons.fa.FaLightbulb
+import kotlinx.browser.localStorage
 import org.jetbrains.compose.web.css.AlignItems
 import org.jetbrains.compose.web.css.Color
 import org.jetbrains.compose.web.css.DisplayStyle.Companion.Flex
 import org.jetbrains.compose.web.css.px
 import org.jetbrains.compose.web.css.rgba
 import org.jetbrains.compose.web.dom.H1
+import org.jetbrains.compose.web.dom.Span
 import org.jetbrains.compose.web.dom.Text
+import org.w3c.dom.get
 
 @Composable
-fun Header() {
+fun Header(onLogout: (() -> Unit)? = null) {
+    val username = localStorage["auth-username"] ?: ""
+
     Box(
         Modifier
             .fillMaxWidth()
@@ -41,7 +47,7 @@ fun Header() {
             Modifier.fillMaxWidth(),
             verticalAlignment = CenterVertically,
         ) {
-            Box(Modifier.display(Flex).alignItems(AlignItems.Center)) {
+            Box(Modifier.display(Flex).alignItems(AlignItems.Center).weight(1f)) {
                 FaLightbulb(
                     Modifier
                         .margin(right = 10.px)
@@ -56,7 +62,30 @@ fun Header() {
                             .fontWeight(Medium)
                             .toAttrs(),
                 ) {
-                    Text("Kobweb Notes")
+                    Text("MalefiKeep")
+                }
+            }
+
+            if (onLogout != null) {
+                Row(verticalAlignment = CenterVertically) {
+                    if (username.isNotEmpty()) {
+                        Span(
+                            attrs =
+                                Modifier
+                                    .margin(right = 12.px)
+                                    .color(Color.darkgray)
+                                    .fontSize(14.px)
+                                    .toAttrs(),
+                        ) {
+                            Text("Hi, $username")
+                        }
+                    }
+                    Button(
+                        onClick = { onLogout() },
+                        modifier = Modifier.padding(6.px, 14.px).fontSize(14.px).backgroundColor(Color("#f5f5f5")),
+                    ) {
+                        Text("Sign out")
+                    }
                 }
             }
         }

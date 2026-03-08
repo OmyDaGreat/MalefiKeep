@@ -50,11 +50,9 @@ import org.jetbrains.compose.web.css.width
 import org.jetbrains.compose.web.dom.Input
 import org.jetbrains.compose.web.dom.Text
 import org.jetbrains.compose.web.dom.TextArea
-import xyz.malefic.malefikeep.models.Note
-import kotlin.random.Random
 
 @Composable
-fun CreateNote(onNoteCreated: (Note) -> Unit) {
+fun CreateNote(onNoteCreated: (title: String, content: String, color: String) -> Unit) {
     var title by remember { mutableStateOf("") }
     var content by remember { mutableStateOf("") }
     var isExpanded by remember { mutableStateOf(false) }
@@ -164,14 +162,7 @@ fun CreateNote(onNoteCreated: (Note) -> Unit) {
                         Button(
                             onClick = {
                                 if (content.isNotEmpty()) {
-                                    val newNote =
-                                        Note(
-                                            id = generateId(),
-                                            title = title,
-                                            content = content,
-                                            color = selectedColor,
-                                        )
-                                    onNoteCreated(newNote)
+                                    onNoteCreated(title, content, selectedColor)
                                     title = ""
                                     content = ""
                                     isExpanded = false
@@ -193,4 +184,3 @@ fun CreateNote(onNoteCreated: (Note) -> Unit) {
     }
 }
 
-private fun generateId(): String = Random.nextInt(100000, 999999).toString()
