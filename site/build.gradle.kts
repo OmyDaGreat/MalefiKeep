@@ -3,7 +3,7 @@ import org.jmailen.gradle.kotlinter.tasks.FormatTask
 import org.jmailen.gradle.kotlinter.tasks.LintTask
 
 plugins {
-    kotlin("plugin.serialization") version "2.3.10"
+    kotlin("plugin.serialization") version "2.4.10"
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.kobweb.application)
